@@ -27,7 +27,7 @@ async def user_login(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials."
         )
 
-    token = create_token(data={"user_id": user.id})
+    token = create_token(data={"user_id": str(user.id)})
 
     return {"access_token": token, "token_type": "bearer"}
 
