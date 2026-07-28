@@ -15,7 +15,8 @@ EXPIRY_IN_MINUTES = settings.EXP_IN_MINS
 def create_token(data: dict):
     to_encode = data.copy()
     expiry = datetime.now(timezone.utc) + timedelta(minutes=EXPIRY_IN_MINUTES)
-    to_encode.update({"exp": expiry})
+    issued_at = datetime.now(timezone.utc)
+    to_encode.update({"exp": expiry, "iat": issued_at})
 
     encoded = jwt.encode(to_encode, algorithm=ALGORITHM, key=SECRET_KEY)
 
