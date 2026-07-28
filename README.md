@@ -115,7 +115,7 @@ pip install -r requirements.txt
 
 ### 5. Configure Environment Variables
 
-Rename the `.env.example` file in the project root to `.env`.
+Rename the `.env.example` file in the project root to `.env`
 
 Edit necessary values
 
