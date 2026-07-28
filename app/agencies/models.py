@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import TIMESTAMP, Column, Integer, Double, String, Boolean, text
+from sqlalchemy import TIMESTAMP, Column, Double, String, Boolean, text
 from app.database import Base
 
 
@@ -18,7 +18,7 @@ class Agency(Base):
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)
     email = Column(String, nullable=False, unique=True)
-    phone = Column(Integer, nullable=False)
+    phone = Column(String, nullable=False)
     org_type = Column(String, nullable=False)
     org_address = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False, server_default="true")

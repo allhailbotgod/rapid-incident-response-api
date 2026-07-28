@@ -4,7 +4,6 @@ from sqlalchemy import (
     TIMESTAMP,
     Column,
     ForeignKey,
-    Integer,
     String,
     Enum as SQLEnum,
     text,
@@ -37,7 +36,7 @@ class SOS(Base):
     owner_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
     )
-    phone = Column(Integer, nullable=False)
+    phone = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     middle_name = Column(String, nullable=True)
     last_name = Column(String, nullable=False)

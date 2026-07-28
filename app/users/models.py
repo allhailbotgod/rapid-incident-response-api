@@ -31,9 +31,10 @@ class Users(Base):
     first_name = Column(String, nullable=False)
     middle_name = Column(String, nullable=True)
     last_name = Column(String, nullable=False)
-    phone = Column(Integer, nullable=False)
+    phone = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     gender = Column(SQLEnum(Gender, name="gender_enum"), nullable=False)
+    password = Column(String, nullable=False)
     role_id = Column(
         UUID(as_uuid=True), ForeignKey("roles.id", ondelete="restrict"), nullable=False
     )
