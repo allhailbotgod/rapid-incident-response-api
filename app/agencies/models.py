@@ -1,10 +1,19 @@
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import TIMESTAMP, Column, Integer, Double, String, Boolean, text
 from app.database import Base
 
 
 class Agency(Base):
     __tablename__ = "agencies"
-    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        nullable=False,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
     agency_name = Column(String, unique=True, nullable=False)
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)

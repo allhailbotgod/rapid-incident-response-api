@@ -9,7 +9,7 @@ local_session = sessionmaker(bind=engine, autoflush=False)
 
 
 def get_db():
-    db = local_session
+    db = local_session()
 
     try:
         yield db

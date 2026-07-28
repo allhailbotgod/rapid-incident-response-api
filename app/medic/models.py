@@ -1,12 +1,24 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String, text
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, text
 from app.database import Base
 
 
 class MedicProfile(Base):
     __tablename__ = "medic_profile"
-    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        nullable=False,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
     owner_id = Column(
-        Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False, unique=True
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="cascade"),
+        nullable=False,
+        unique=True,
     )
     blood_group = Column(String, nullable=True)
     genotype = Column(String, nullable=True)

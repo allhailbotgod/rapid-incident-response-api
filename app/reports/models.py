@@ -1,7 +1,8 @@
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import (
     Column,
     ForeignKey,
-    Integer,
     String,
     TIMESTAMP,
     text,
@@ -34,9 +35,16 @@ class ReportStatus(str, Enum):
 
 class Reports(Base):
     __tablename__ = "reports"
-    id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        unique=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
     reporter_id = Column(
-        Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
     )
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)
@@ -57,9 +65,16 @@ class Reports(Base):
 
 class Media(Base):
     __tablename__ = "incident_media"
-    id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        unique=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
     incident_id = Column(
-        Integer, ForeignKey("reports.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True), ForeignKey("reports.id", ondelete="cascade"), nullable=False
     )
     url = Column(String, nullable=False)
     uploaded_at = Column(

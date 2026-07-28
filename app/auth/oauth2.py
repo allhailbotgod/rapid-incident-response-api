@@ -38,7 +38,7 @@ def verify_token(to_verify: str, credentials_exception):
 
 def get_current_user(
     credentials_exception,
-    fetched_token: str = Depends(OAuth2PasswordBearer(tokenUrl="/login")),
+    fetched_token: str = Depends(OAuth2PasswordBearer(tokenUrl="/v1/auth/login")),
     db: Session = Depends(get_db),
 ):
     credentials_exception = HTTPException(

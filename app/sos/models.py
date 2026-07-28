@@ -1,3 +1,5 @@
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import (
     TIMESTAMP,
     Column,
@@ -24,9 +26,16 @@ class SOS_Relation(str, Enum):
 
 class SOS(Base):
     __tablename__ = "sos"
-    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        nullable=False,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
     owner_id = Column(
-        Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
     )
     phone = Column(Integer, nullable=False)
     first_name = Column(String, nullable=False)
