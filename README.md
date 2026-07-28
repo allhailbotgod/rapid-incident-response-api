@@ -82,7 +82,7 @@ The project follows a **Separation of Concerns** architecture where each feature
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/rapid-incident-response-api.git
+git clone https://github.com/allhailbotgod/rapid-incident-response-api.git
 
 cd rapid-incident-response-api
 ```
