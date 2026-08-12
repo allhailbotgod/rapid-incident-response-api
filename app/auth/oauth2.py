@@ -27,7 +27,7 @@ def verify_token(to_verify: str, credentials_exception):
     try:
         payload = jwt.decode(token=to_verify, key=SECRET_KEY, algorithms=[ALGORITHM])
 
-        user_id: int = payload.get("user_id")
+        user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
 
@@ -38,7 +38,6 @@ def verify_token(to_verify: str, credentials_exception):
 
 
 def get_current_user(
-    credentials_exception,
     fetched_token: str = Depends(OAuth2PasswordBearer(tokenUrl="/v1/auth/login")),
     db: Session = Depends(get_db),
 ):
@@ -50,6 +49,6 @@ def get_current_user(
     user_id = verify_token(
         to_verify=fetched_token, credentials_exception=credentials_exception
     )
-    current_user = db.query(Users).filter(user_id == Users.id).first()
+    current_user = db.query(Users).filter(Users.id == user_id).first()
 
     return current_user

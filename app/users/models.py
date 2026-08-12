@@ -10,6 +10,8 @@ from sqlalchemy import (
     text,
 )
 from enum import Enum
+
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -44,3 +46,5 @@ class Users(Base):
     updated_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    role = relationship("Roles")
