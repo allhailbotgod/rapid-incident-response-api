@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/profile", status_code=status.HTTP_200_OK, response_model=UserProfile)
-async def fetch_profile(
+def fetch_profile(
     db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
     fetched = db.query(Users).filter(Users.id == current_user.id).first()

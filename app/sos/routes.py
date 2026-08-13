@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post(
     "/contacts", status_code=status.HTTP_201_CREATED, response_model=ContactOut
 )
-async def add_sos_contact(
+def add_sos_contact(
     contact: ContactIn,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
@@ -40,7 +40,7 @@ async def add_sos_contact(
 @router.get(
     "/contacts", status_code=status.HTTP_200_OK, response_model=List[SOSResponse]
 )
-async def fetch_user_sos(
+def fetch_user_sos(
     db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
     fetched = db.query(SOS).filter(SOS.owner_id == current_user.id).all()

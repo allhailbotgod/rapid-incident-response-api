@@ -13,7 +13,7 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=TokenOut)
-async def user_login(
+def user_login(
     user_details: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     user = db.query(Users).filter(user_details.username == Users.email).first()
@@ -34,7 +34,7 @@ async def user_login(
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def user_registration(user: UserIn, db: Session = Depends(get_db)):
+def user_registration(user: UserIn, db: Session = Depends(get_db)):
     default_role = db.query(Roles).filter(Roles.name == "regular").first()
 
     if default_role is None:

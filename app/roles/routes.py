@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/roles", status_code=status.HTTP_200_OK, response_model=RolesOut)
-async def create_roles(
+def create_roles(
     role: RolesIn, db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
     user = (
