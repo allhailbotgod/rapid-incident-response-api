@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -81,3 +81,22 @@ def update_contact_info(
         )
 
     return to_update
+
+
+@router.delete("/contacts/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_contacts(
+    id: UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
+    to_delete = (
+        db.query(SOS).filter(SOS.id == id, SOS.owner_id == current_user.id).first()
+    )
+
+    if to_delete is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found."
+        )
+
+    db.delete(to_delete)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,4 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
-from uuid import UUID
 
 
 class RoleResponse(BaseModel):
