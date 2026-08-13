@@ -1,5 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.auth.oauth2 import create_token
 from app.auth.schemas import TokenOut, UserIn
@@ -34,14 +35,6 @@ async def user_login(
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def user_registration(user: UserIn, db: Session = Depends(get_db)):
-    existing_user = db.query(Users).filter(user.email == Users.email).first()
-
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This email has already been used.",
-        )
-
     default_role = db.query(Roles).filter(Roles.name == "regular").first()
 
     if default_role is None:
@@ -56,21 +49,15 @@ async def user_registration(user: UserIn, db: Session = Depends(get_db)):
     )
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
 
-    role = (
-        db.query(Roles)
-        .join(Users, Users.role_id == Roles.id)
-        .filter(Users.id == new_user.id)
-        .first()
-    )
+    try:
+        db.commit()
+        db.refresh(new_user)
 
-    return {
-        "first_name": new_user.first_name,
-        "last_name": new_user.last_name,
-        "phone": new_user.phone,
-        "email": new_user.email,
-        "gender": new_user.gender,
-        "role": role.name,
-    }
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already exists."
+        )
+
+    return new_user

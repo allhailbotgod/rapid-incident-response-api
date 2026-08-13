@@ -7,7 +7,6 @@ class RoleResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class UserProfile(BaseModel):
     first_name: str
     middle_name: str | None

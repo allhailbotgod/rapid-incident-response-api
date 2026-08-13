@@ -22,10 +22,14 @@ class UserIn(BaseModel):
     gender: GenderEnum
 
 
+class RoleResponse(BaseModel):
+    name: str
+
+
 class UserOut(BaseModel):
     first_name: str
     last_name: str
     phone: str
     email: EmailStr
     gender: str
-    role: str
+    role: RoleResponse

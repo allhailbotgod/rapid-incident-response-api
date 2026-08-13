@@ -7,6 +7,7 @@ from sqlalchemy import (
     String,
     Enum as SQLEnum,
     text,
+    UniqueConstraint,
 )
 from enum import Enum
 from app.database import Base
@@ -47,3 +48,5 @@ class SOS(Base):
     updated_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    __table_args__ = (UniqueConstraint("owner_id", "phone", name="uq_sos_owner_phone"),)
