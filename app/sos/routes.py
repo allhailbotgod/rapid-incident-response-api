@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from uuid import UUID
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.sos.models import SOS
-from app.sos.schemas import ContactIn, ContactOut, SOSResponse
+from app.sos.schemas import ContactIn, ContactOut, SOSPatch, SOSResponse
 from typing import List
 from app.sos.models import SOS
 
@@ -45,3 +46,38 @@ def fetch_user_sos(
 ):
     fetched = db.query(SOS).filter(SOS.owner_id == current_user.id).all()
     return fetched
+
+
+@router.patch(
+    "/contacts/{id}", status_code=status.HTTP_200_OK, response_model=SOSResponse
+)
+def update_contact_info(
+    id: UUID,
+    update_contact: SOSPatch,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    to_update = (
+        db.query(SOS).filter(SOS.id == id, SOS.owner_id == current_user.id).first()
+    )
+
+    if not to_update:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found."
+        )
+
+    for key, value in update_contact.model_dump(exclude_unset=True).items():
+        setattr(to_update, key, value)
+
+    try:
+        db.commit()
+        db.refresh(to_update)
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This phone number is already an emergency contact.",
+        )
+
+    return to_update

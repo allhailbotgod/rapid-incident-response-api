@@ -7,9 +7,10 @@ class RoleResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class UserProfile(BaseModel):
     first_name: str
-    middle_name: str | None
+    middle_name: str | None = None
     last_name: str
     email: EmailStr
     role: RoleResponse

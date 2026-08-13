@@ -1,10 +1,6 @@
-from enum import Enum
-from pydantic import BaseModel, EmailStr
-
-
-class GenderEnum(str, Enum):
-    MALE = "male"
-    FEMALE = "female"
+from pydantic import BaseModel, EmailStr, ConfigDict
+from uuid import UUID
+from app.users.models import Gender
 
 
 class TokenOut(BaseModel):
@@ -19,11 +15,14 @@ class UserIn(BaseModel):
     phone: str
     email: EmailStr
     password: str
-    gender: GenderEnum
+    gender: Gender
 
 
 class RoleResponse(BaseModel):
+    id: UUID
     name: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserOut(BaseModel):
@@ -31,5 +30,7 @@ class UserOut(BaseModel):
     last_name: str
     phone: str
     email: EmailStr
-    gender: str
+    gender: Gender
     role: RoleResponse
+
+    model_config = ConfigDict(from_attributes=True)
