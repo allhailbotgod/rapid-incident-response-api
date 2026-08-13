@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -7,9 +6,9 @@ class Settings(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: str
     EXP_IN_MINS: int
-    ORIGINS: List[str]
-    METHODS: List[str]
-    HEADERS: List[str]
+    ORIGINS: list[str]
+    METHODS: list[str]
+    HEADERS: list[str]
     CORS_CREDS: bool
 
     model_config = SettingsConfigDict(

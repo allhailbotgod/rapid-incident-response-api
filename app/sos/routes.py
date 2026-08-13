@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.auth.oauth2 import get_current_user
@@ -66,8 +67,18 @@ def update_contact_info(
             status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found."
         )
 
-    for key, value in update_contact.model_dump(exclude_unset=True).items():
+    updates = update_contact.model_dump(exclude_unset=True)
+
+    if not updates:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields provided for update.",
+        )
+
+    for key, value in updates.items():
         setattr(to_update, key, value)
+
+    to_update.updated_at = datetime.now(timezone.utc)
 
     try:
         db.commit()

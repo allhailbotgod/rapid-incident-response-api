@@ -3,7 +3,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import (
     Column,
     ForeignKey,
-    Integer,
     String,
     TIMESTAMP,
     Enum as SQLEnum,
