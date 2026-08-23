@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.auth.oauth2 import create_token
-from app.auth.schemas import TokenOut, UserIn
+from app.auth.schemas import TokenOut, UserIn, UserOut
 from app.database import get_db
 from app.roles.models import Roles
 from app.users.models import Users
@@ -33,7 +33,7 @@ def user_login(
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserOut)
 def user_registration(user: UserIn, db: Session = Depends(get_db)):
     default_role = db.query(Roles).filter(Roles.name == "regular").first()
 

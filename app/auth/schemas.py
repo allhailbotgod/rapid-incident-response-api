@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from uuid import UUID
 from app.users.models import Gender
 
 
@@ -19,7 +18,6 @@ class UserIn(BaseModel):
 
 
 class RoleResponse(BaseModel):
-    id: UUID
     name: str
 
     model_config = ConfigDict(from_attributes=True)
