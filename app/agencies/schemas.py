@@ -12,3 +12,5 @@ class AgencyOut(BaseModel):
     latitude: float
     longitude: float
     is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
