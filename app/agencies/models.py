@@ -1,7 +1,14 @@
 import uuid
+from enum import Enum
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import TIMESTAMP, Column, Double, String, Boolean, text
+from sqlalchemy import TIMESTAMP, Column, Double, String, Boolean, text, Enum as SQLEnum
 from app.database import Base
+
+
+class OrgTypeEnum(str, Enum):
+    MEDICAL = "medical"
+    FIRE_SERVICE = "fire service"
+    LAW = "law enforcement"
 
 
 class Agency(Base):
@@ -19,7 +26,7 @@ class Agency(Base):
     longitude = Column(Double, nullable=False)
     email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False)
-    org_type = Column(String, nullable=False)
+    org_type = Column(SQLEnum(OrgTypeEnum), nullable=False)
     org_address = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False, server_default="true")
     created_at = Column(
