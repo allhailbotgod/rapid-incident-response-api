@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, Response, status, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
@@ -93,3 +93,25 @@ def update_role(
         )
 
     return to_update
+
+
+@router.delete("/role/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_role(
+    id: UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
+    if current_user.role.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required."
+        )
+
+    to_delete = db.query(Roles).filter(Roles.id == id).first()
+
+    if to_delete is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found."
+        )
+
+    db.delete(to_delete)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
