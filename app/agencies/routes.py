@@ -9,7 +9,7 @@ from app.database import get_db
 router = APIRouter()
 
 
-@router.get("/agencies", status_code=status.HTTP_200_OK, response_model=AgencyOut)
+@router.get("/agencies", status_code=status.HTTP_200_OK, response_model=list[AgencyOut])
 def fetch_agencies(
     db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
