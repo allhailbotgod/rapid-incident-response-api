@@ -21,12 +21,12 @@ class Agency(Base):
         default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
     )
-    agency_name = Column(String, unique=True, nullable=False)
+    name = Column(String, unique=True, nullable=False)
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)
     email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False)
-    org_type = Column(SQLEnum(OrgTypeEnum), nullable=False)
+    org_type = Column(SQLEnum(OrgTypeEnum, name="org_type_enum"), nullable=False)
     org_address = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False, server_default="true")
     created_at = Column(
