@@ -1,12 +1,21 @@
-import bcrypt
-from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def hash_pwd(pwd: str):
-    return pwd_context.hash(secret=pwd)
+from app.auth.oauth2 import get_current_user
 
 
-def verify_pwd(pwd: str, hashed):
-    return pwd_context.verify(secret=pwd, hash=hashed)
+def require_admin(current_user=Depends(get_current_user)):
+    if current_user.role.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized."
+        )
+
+    return current_user
+
+
+def require_dispatch(current_user=Depends(get_current_user)):
+    if current_user.role.name != "dispatcher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized."
+        )
+
+    return current_user

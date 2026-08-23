@@ -7,7 +7,7 @@ from app.auth.schemas import TokenOut, UserIn, UserOut
 from app.database import get_db
 from app.roles.models import Roles
 from app.users.models import Users
-from app.utils.helpers import hash_pwd, verify_pwd
+from app.utils.pwd import hash_pwd, verify_pwd
 
 router = APIRouter(prefix="/auth")
 

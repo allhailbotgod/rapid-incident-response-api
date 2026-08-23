@@ -3,22 +3,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from uuid import UUID
-from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.roles.models import Roles
 from app.roles.schemas import RolesIn, RolesOut
-from app.users.models import Users
+from app.utils.helpers import require_dispatch
 
 router = APIRouter()
 
 
 @router.get("/roles", status_code=status.HTTP_200_OK, response_model=list[RolesOut])
-def fetch_roles(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    if current_user.role.name != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized."
-        )
-
+def fetch_roles(db: Session = Depends(get_db), current_user=Depends(require_dispatch)):
     roles = db.query(Roles).all()
 
     return roles
@@ -26,13 +20,8 @@ def fetch_roles(db: Session = Depends(get_db), current_user=Depends(get_current_
 
 @router.post("/roles", status_code=status.HTTP_200_OK, response_model=RolesOut)
 def create_roles(
-    role: RolesIn, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    role: RolesIn, db: Session = Depends(get_db), current_user=Depends(require_dispatch)
 ):
-    if current_user.role.name != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized."
-        )
-
     new_role = Roles(**role.model_dump())
 
     db.add(new_role)
@@ -55,13 +44,8 @@ def update_role(
     id: UUID,
     role_update: RolesIn,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_dispatch),
 ):
-    if current_user.role.name != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required."
-        )
-
     to_update = db.query(Roles).filter(Roles.id == id).first()
 
     if to_update is None:
@@ -97,13 +81,8 @@ def update_role(
 
 @router.delete("/role/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_role(
-    id: UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: UUID, db: Session = Depends(get_db), current_user=Depends(require_dispatch)
 ):
-    if current_user.role.name != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required."
-        )
-
     to_delete = db.query(Roles).filter(Roles.id == id).first()
 
     if to_delete is None:
