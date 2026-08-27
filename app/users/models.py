@@ -36,6 +36,12 @@ class Users(Base):
     email = Column(String, unique=True, nullable=False)
     gender = Column(SQLEnum(Gender, name="gender_enum"), nullable=False)
     password = Column(String, nullable=False)
+    org_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="cascade"),
+        nullable=False,
+        unique=True,
+    )
     role_id = Column(
         UUID(as_uuid=True), ForeignKey("roles.id", ondelete="restrict"), nullable=False
     )
