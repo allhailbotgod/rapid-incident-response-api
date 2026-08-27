@@ -4,7 +4,7 @@ from uuid import UUID
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.agencies.models import Agency
-from app.agencies.schemas import AgencyIn, AgencyOut, AgencyRegistration, AgencyUpdate
+from app.agencies.schemas import AgencyOut, AgencyRegistration, AgencyUpdate
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.roles.models import Roles
@@ -75,7 +75,7 @@ def update_organization_details(
     id: UUID,
     updates: AgencyUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_admin),
+    current_user: Users = Depends(require_admin),
 ):
     to_update = (
         db.query(Agency)
@@ -116,7 +116,9 @@ def update_organization_details(
 
 @router.delete("/agencies/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_organization(
-    id: UUID, db: Session = Depends(get_db), current_user=Depends(require_admin)
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: Users = Depends(require_admin),
 ):
     to_delete = (
         db.query(Agency)

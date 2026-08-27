@@ -9,6 +9,7 @@ from app.sos.models import SOS
 from app.sos.schemas import ContactIn, ContactOut, SOSPatch, SOSResponse
 from typing import List
 from app.sos.models import SOS
+from app.users.models import Users
 
 router = APIRouter()
 
@@ -19,7 +20,7 @@ router = APIRouter()
 def add_sos_contact(
     contact: ContactIn,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: Users = Depends(get_current_user),
 ):
     new_contact = SOS(**contact.model_dump(), owner_id=current_user.id)
 
@@ -43,7 +44,7 @@ def add_sos_contact(
     "/contacts", status_code=status.HTTP_200_OK, response_model=List[SOSResponse]
 )
 def fetch_user_sos(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: Users = Depends(get_current_user)
 ):
     fetched = db.query(SOS).filter(SOS.owner_id == current_user.id).all()
     return fetched
@@ -56,7 +57,7 @@ def update_contact_info(
     id: UUID,
     update_contact: SOSPatch,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: Users = Depends(get_current_user),
 ):
     to_update = (
         db.query(SOS).filter(SOS.id == id, SOS.owner_id == current_user.id).first()
@@ -96,7 +97,9 @@ def update_contact_info(
 
 @router.delete("/contacts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_contacts(
-    id: UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: Users = Depends(get_current_user),
 ):
     to_delete = (
         db.query(SOS).filter(SOS.id == id, SOS.owner_id == current_user.id).first()

@@ -8,13 +8,14 @@ from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.medic.models import MedicProfile
 from app.medic.schemas import MedicIn, MedicResponse
+from app.users.models import Users
 
 router = APIRouter()
 
 
 @router.get("/medicals", status_code=status.HTTP_200_OK, response_model=MedicResponse)
 def fetch_medical_profile(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: Users = Depends(get_current_user)
 ):
     fetched = (
         db.query(MedicProfile).filter(MedicProfile.owner_id == current_user.id).first()
@@ -32,7 +33,7 @@ def fetch_medical_profile(
 def create_medical_profile(
     medic_profile: MedicIn,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: Users = Depends(get_current_user),
 ):
     new_profile = MedicProfile(
         **medic_profile.model_dump(exclude_unset=True), owner_id=current_user.id
@@ -58,7 +59,7 @@ def create_medical_profile(
 def update_medical_profile(
     updated: MedicIn,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: Users = Depends(get_current_user),
 ):
     to_update = (
         db.query(MedicProfile).filter(MedicProfile.owner_id == current_user.id).first()
@@ -98,7 +99,7 @@ def update_medical_profile(
 
 @router.delete("/medicals", status_code=status.HTTP_204_NO_CONTENT)
 def delete_medical_profile(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: Users = Depends(get_current_user)
 ):
     to_delete = (
         db.query(MedicProfile).filter(MedicProfile.owner_id == current_user.id).first()
