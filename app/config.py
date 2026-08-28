@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     S3_BUCKET: str
     S3_REGION: str
 
+    ALLOWED_MEDIA_TYPES: set[str]
+
     ALGORITHM: str
     SECRET_KEY: str
     EXP_IN_MINS: int

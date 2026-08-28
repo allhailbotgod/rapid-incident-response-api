@@ -9,6 +9,7 @@ from app.config import settings
 
 month = datetime.now().strftime("%m")
 year = datetime.now().strftime("%Y")
+day = datetime.now().strftime("%d")
 
 s3_client = boto3.client(
     "s3",
@@ -22,7 +23,7 @@ s3_client = boto3.client(
 
 def create_upload_url(filename: str, content_type: str):
     extension = filename.rsplit(".", 1)[-1]
-    object_key = f"incidents/{year}/{month}/{uuid4()}.{extension}"
+    object_key = f"incidents/{year}/{month}/{day}/{uuid4()}.{extension}"
 
     upload_url = s3_client.generate_presigned_url(
         ClientMethod="put_object",
@@ -34,7 +35,7 @@ def create_upload_url(filename: str, content_type: str):
         ExpiresIn=600,
     )
 
-    return {"upload_url": upload_url, "object_key": object_key}
+    return upload_url, object_key
 
 
 def create_download_url(object_key: str):

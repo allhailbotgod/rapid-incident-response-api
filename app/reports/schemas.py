@@ -13,4 +13,4 @@ class IncidentCreate(BaseModel):
     longitude: float
     report_type: ReportType
     description: str | None = None
-    media: list[MediaUpload] = []
+    media: list[MediaUpload]

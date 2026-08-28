@@ -10,19 +10,12 @@ from app.reports.models import Media, Reports
 from app.reports.schemas import IncidentCreate
 from app.storage import create_upload_url, verify_object_exists
 from app.users.models import Users
-from app.storage import s3_client
 from app.config import settings
 
 router = APIRouter()
 
 
-ALLOWED_MEDIA_TYPES = {
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "video/mp4",
-    "video/webm",
-}
+ALLOWED_MEDIA_TYPES = settings.ALLOWED_MEDIA_TYPES
 
 
 @router.post("/incidents", status_code=status.HTTP_201_CREATED)
@@ -63,9 +56,11 @@ def report_incident(
             )
 
             db.add(new_media)
+            db.flush()
 
             upload_urls.append(
                 {
+                    "media_id": new_media.id,
                     "object_key": object_key,
                     "upload_url": upload_url,
                     "content_type": media.content_type,
@@ -77,7 +72,6 @@ def report_incident(
 
         return {
             "incident_id": new_incident.id,
-            "media_id": new_media.id,
             "status": new_incident.status,
             "upload_urls": upload_urls,
         }
@@ -142,7 +136,7 @@ def confirm_media_upload(
         )
 
     try:
-        to_update.upload_status = "success"
+        to_update.upload_status = "uploaded"
 
         db.commit()
 
