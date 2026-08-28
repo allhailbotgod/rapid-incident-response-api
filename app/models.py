@@ -1,4 +1,5 @@
 from app.agencies import models
+from app.auth import models
 from app.medic import models
 from app.reports import models
 from app.roles import models

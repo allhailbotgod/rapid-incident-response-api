@@ -12,9 +12,11 @@ class Settings(BaseSettings):
 
     ALLOWED_MEDIA_TYPES: set[str]
 
+    ACCESS_TOKEN_EXPIRY_IN_MINS: int
+    REFRESH_TOKEN_EXPIRY_IN_DAYS: int
+
     ALGORITHM: str
     SECRET_KEY: str
-    EXP_IN_MINS: int
     ORIGINS: list[str]
     METHODS: list[str]
     HEADERS: list[str]

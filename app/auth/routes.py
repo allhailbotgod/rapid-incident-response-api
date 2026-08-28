@@ -1,9 +1,17 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from app.auth.oauth2 import create_token
-from app.auth.schemas import TokenOut, UserIn, UserOut
+from app.auth.models import RevokedTokens
+from app.auth.oauth2 import (
+    create_access_token,
+    create_refresh_token,
+    get_current_user,
+    verify_refresh_token,
+)
+from app.auth.schemas import RefreshTokenRequest, TokenOut, UserIn, UserOut
 from app.database import get_db
 from app.roles.models import Roles
 from app.users.models import Users
@@ -20,17 +28,46 @@ def user_login(
 
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials."
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
         )
 
     if not verify_pwd(user_details.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials."
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
         )
 
-    token = create_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={"sub": str(user.id), "type": "access"})
 
-    return {"access_token": token, "token_type": "bearer"}
+    refresh_token, refresh_token_jti = create_refresh_token(
+        data={"sub": str(user.id), "type": "refresh"}
+    )
+
+    new_revoked_token = RevokedTokens(
+        user_id=user.id, jti=refresh_token_jti, revoked=False
+    )
+
+    try:
+        db.add(new_revoked_token)
+        db.commit()
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Revoked token not added."
+        )
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occured.",
+        )
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserOut)
@@ -61,3 +98,59 @@ def user_registration(user: UserIn, db: Session = Depends(get_db)):
         )
 
     return new_user
+
+
+@router.post("/refresh", status_code=status.HTTP_200_OK, response_model=TokenOut)
+def user_token_refresh_request(
+    token: RefreshTokenRequest, db: Session = Depends(get_db)
+):
+    payload = verify_refresh_token(token=token.refresh_token, db=db)
+
+    set_revoked = (
+        db.query(RevokedTokens)
+        .join(Users)
+        .filter(RevokedTokens.jti == payload["jti"], Users.id == payload["sub"])
+        .first()
+    )
+
+    if set_revoked is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Cannot generate new tokens."
+        )
+
+    set_revoked.revoked = True
+    set_revoked.revoked_at = datetime.now(timezone.utc)
+
+    new_access_token = create_access_token(data={"sub": payload["sub"]})
+
+    new_refresh_token, refresh_token_jti = create_refresh_token(
+        data={"sub": payload["sub"]}
+    )
+
+    new_revoked_token = RevokedTokens(
+        user_id=payload["sub"], jti=refresh_token_jti, revoked=False
+    )
+
+    try:
+        db.add(new_revoked_token)
+        db.commit()
+        db.refresh(set_revoked)
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Revoked token not added."
+        )
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occured.",
+        )
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer",
+    }
