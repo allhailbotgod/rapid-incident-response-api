@@ -7,15 +7,27 @@ from sqlalchemy.orm import Session
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.reports.models import Media, Reports
-from app.reports.schemas import IncidentCreate
+from app.reports.schemas import IncidentCreate, IncidentResponse
 from app.storage import create_upload_url, verify_object_exists
 from app.users.models import Users
 from app.config import settings
+from app.utils.helpers import require_dispatch
 
 router = APIRouter()
 
 
 ALLOWED_MEDIA_TYPES = settings.ALLOWED_MEDIA_TYPES
+
+
+@router.get(
+    "/incidents", status_code=status.HTTP_200_OK, response_model=list[IncidentResponse]
+)
+def fetch_incidents(
+    db: Session = Depends(get_db), current_user=Depends(require_dispatch)
+):
+    fetched = db.query(Reports).all()
+
+    return fetched
 
 
 @router.post("/incidents", status_code=status.HTTP_201_CREATED)
