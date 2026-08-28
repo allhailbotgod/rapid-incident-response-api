@@ -2,6 +2,7 @@ from uuid import uuid4
 from datetime import datetime
 
 import boto3
+from botocore.exceptions import ClientError
 from botocore.client import Config
 
 from app.config import settings
@@ -46,3 +47,18 @@ def create_download_url(object_key: str):
         },
         ExpiresIn=300,
     )
+
+
+def verify_object_exists(object_key: str) -> bool:
+    try:
+        s3_client.head_object(
+            Bucket=settings.S3_BUCKET,
+            Key=object_key,
+        )
+        return True
+    except ClientError as error:
+        error_code = error.response.get("Error", {}).get("Code")
+
+        if error_code in ("404", "NoSuchKey", "NotFound"):
+            return False
+        raise

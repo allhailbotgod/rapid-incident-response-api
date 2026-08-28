@@ -81,6 +81,11 @@ class Media(Base):
         default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
     )
+    upload_status = Column(
+        String,
+        nullable=False,
+        default="pending",
+    )
     incident_id = Column(
         UUID(as_uuid=True), ForeignKey("reports.id", ondelete="cascade"), nullable=False
     )
