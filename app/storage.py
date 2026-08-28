@@ -7,8 +7,8 @@ from botocore.client import Config
 
 from app.config import settings
 
-month = datetime.now().month.strftime("%m")
-year = datetime.now().year.strftime("%Y")
+month = datetime.now().strftime("%m")
+year = datetime.now().strftime("%Y")
 
 s3_client = boto3.client(
     "s3",
