@@ -10,6 +10,8 @@ from sqlalchemy import (
     Double,
 )
 from enum import Enum
+
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -62,6 +64,12 @@ class Reports(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
+    media = relationship(
+        "Media",
+        back_populates="report",
+        cascade="all, delete-orphan",
+    )
+
 
 class Media(Base):
     __tablename__ = "incident_media"
@@ -76,7 +84,12 @@ class Media(Base):
     incident_id = Column(
         UUID(as_uuid=True), ForeignKey("reports.id", ondelete="cascade"), nullable=False
     )
-    url = Column(String, nullable=False)
+    object_key = Column(String, nullable=False)
+    content_type = Column(String, nullable=False)
     uploaded_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
+    report = relationship(
+        "Reports",
+        back_populates="media",
     )

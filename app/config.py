@@ -3,6 +3,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+
+    S3_ENPOINT_URL: str
+    S3_ACCESS_KEY: str
+    S3_SECRET_KEY: str
+    S3_BUCKET: str
+    S3_REGION: str
+
     ALGORITHM: str
     SECRET_KEY: str
     EXP_IN_MINS: int
