@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy.orm import Session
 
 from app.notifications.models import (
@@ -7,6 +9,7 @@ from app.notifications.models import (
 )
 from app.sos.models import SOS
 from app.users.models import Users
+from app.utils.redis import redis_client, NOTIFICATION_QUEUE
 
 
 def create_notification(
@@ -30,6 +33,11 @@ def create_notification(
     )
 
     db.add(notification)
+    db.flush()
+
+    redis_client.rpush(
+        NOTIFICATION_QUEUE, json.dumps({"notification_queue": str(notification.id)})
+    )
 
     return notification
 

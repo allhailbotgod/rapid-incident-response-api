@@ -10,7 +10,7 @@ from app.reports.models import Media, ReportType, Reports
 from app.reports.schemas import IncidentCreate, IncidentResponse
 from app.services.notification_service import notify_sos_contacts
 from app.sos.models import SOS
-from app.storage import create_upload_url, verify_object_exists
+from app.utils.storage import create_upload_url, verify_object_exists
 from app.users.models import Users
 from app.config import settings
 from app.utils.helpers import require_dispatch
