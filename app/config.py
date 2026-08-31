@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     ALLOWED_MEDIA_TYPES: set[str]
 
+    REDIS_URL: str
+
     ACCESS_TOKEN_EXPIRY_IN_MINS: int
     REFRESH_TOKEN_EXPIRY_IN_DAYS: int
 

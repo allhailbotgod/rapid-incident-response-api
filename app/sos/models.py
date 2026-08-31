@@ -38,6 +38,7 @@ class SOS(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
     )
     phone = Column(String, nullable=False)
+    email = Column(String, nullable=True)
     first_name = Column(String, nullable=False)
     middle_name = Column(String, nullable=True)
     last_name = Column(String, nullable=False)
@@ -49,4 +50,7 @@ class SOS(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
-    __table_args__ = (UniqueConstraint("owner_id", "phone", name="uq_sos_owner_phone"),)
+    __table_args__ = (
+        UniqueConstraint("owner_id", "phone", name="uq_sos_owner_phone"),
+        UniqueConstraint("owner_id", "email", name="uq_sos_owner_email"),
+    )

@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
-from app.reports.models import Media, Reports
+from app.reports.models import Media, ReportType, Reports
 from app.reports.schemas import IncidentCreate, IncidentResponse
+from app.services.notification_service import notify_sos_contacts
+from app.sos.models import SOS
 from app.storage import create_upload_url, verify_object_exists
 from app.users.models import Users
 from app.config import settings
@@ -37,16 +39,21 @@ def report_incident(
     current_user: Users = Depends(get_current_user),
 ):
     new_incident = Reports(
-        reporter_id=current_user.id,
-        latitude=data.latitude,
-        longitude=data.longitude,
-        report_type=data.report_type,
-        description=data.description,
+        **data.model_dump(exclude={"media"}), reporter_id=current_user.id
     )
 
     try:
         db.add(new_incident)
         db.flush()
+
+        if data.report_type == ReportType.VICTIM:
+            notify_sos_contacts(
+                db=db,
+                incident_id=new_incident.id,
+                owner_id=current_user.id,
+                title="Emergency Alert!",
+                message=f"{current_user.first_name} {current_user.last_name} has reported an emergency ({data.report_summary.value}) and is requesting immediate assistance. Last known Location: {data.latitude} {data.longitude}.",
+            )
 
         upload_urls = []
 
@@ -99,8 +106,9 @@ def report_incident(
             detail="Could not create incident.",
         )
 
-    except Exception:
+    except Exception as e:
         db.rollback()
+        print("error:", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while creating the incident.",
@@ -158,4 +166,4 @@ def confirm_media_upload(
             status_code=status.HTTP_409_CONFLICT, detail="Could not update status."
         )
 
-    return {"message": "success"}
+    return {"message": "Upload successful."}

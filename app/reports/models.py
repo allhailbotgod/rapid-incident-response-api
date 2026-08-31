@@ -20,6 +20,12 @@ class ReportType(str, Enum):
     WITNESS = "witness"
 
 
+class ReportSummary(str, Enum):
+    FIRE = "fire"
+    ACCIDENT = "accident"
+    CRIME = "crime"
+
+
 class ReportPriority(str, Enum):
     CRITICAL = "critical"
     HIGH = "high"
@@ -51,6 +57,9 @@ class Reports(Base):
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)
     report_type = Column(SQLEnum(ReportType, name="report_type_enum"), nullable=False)
+    report_summary = Column(
+        SQLEnum(ReportSummary, name="report_summary_enum", nullable=False)
+    )
     priority = Column(
         SQLEnum(ReportPriority, name="report_priority_enum"),
         default=ReportPriority.EVALUATING,
