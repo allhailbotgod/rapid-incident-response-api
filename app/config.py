@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     DATABASE_URL: str
 
-    S3_ENPOINT_URL: str
+    S3_ENDPOINT_URL: str
     S3_ACCESS_KEY: str
     S3_SECRET_KEY: str
     S3_BUCKET: str
@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     ALLOWED_MEDIA_TYPES: set[str]
 
     REDIS_URL: str
+
+    FIREBASE_CREDENTIALS_PATH: str
 
     ACCESS_TOKEN_EXPIRY_IN_MINS: int
     REFRESH_TOKEN_EXPIRY_IN_DAYS: int

@@ -13,7 +13,7 @@ day = datetime.now().strftime("%d")
 
 s3_client = boto3.client(
     "s3",
-    endpoint_url=settings.S3_ENPOINT_URL,
+    endpoint_url=settings.S3_ENDPOINT_URL,
     aws_access_key_id=settings.S3_ACCESS_KEY,
     aws_secret_access_key=settings.S3_SECRET_KEY,
     region_name=settings.S3_REGION,
@@ -21,7 +21,7 @@ s3_client = boto3.client(
 )
 
 
-def create_upload_url(filename: str, content_type: str):
+def create_upload_url(filename: str, content_type: str) -> tuple[str, str]:
     extension = filename.rsplit(".", 1)[-1]
     object_key = f"incidents/{year}/{month}/{day}/{uuid4()}.{extension}"
 
@@ -46,7 +46,7 @@ def create_download_url(object_key: str):
             "Bucket": settings.S3_BUCKET,
             "Key": object_key,
         },
-        ExpiresIn=300,
+        ExpiresIn=600,
     )
 
 

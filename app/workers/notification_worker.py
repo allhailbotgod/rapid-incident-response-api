@@ -4,9 +4,40 @@ import json
 from sqlalchemy.orm import Session
 
 from app.database import local_session
-from app.notifications.models import NotificationStatus, Notifications
+from app.notifications.models import (
+    NotificationChannel,
+    NotificationStatus,
+    Notifications,
+)
+from app.services.firebase_service import send_push_notification
+from app.services.notification_service import get_push_tokens
 from app.utils.redis import redis_client, NOTIFICATION_QUEUE
-from app.reports.models import Reports
+import app.models
+
+
+def send_push(notification: Notifications, db: Session):
+    if not notification.recipient_email:
+        raise ValueError("Push notification has no recipient email.")
+
+    tokens = get_push_tokens(db=db, email=notification.recipient_email)
+
+    if not tokens:
+        raise ValueError(f"Tokens not found for {notification.recipient_email}.")
+
+    for token in tokens:
+        send_push_notification(
+            device_token=token, title=notification.title, message=notification.message
+        )
+
+
+def send_sms(notification):
+    print(f"SMS sending not implemented yet for " f"{notification.recipient_phone}")
+
+
+def send_whatsapp(notification):
+    print(
+        f"WhatsApp sending not implemented yet for " f"{notification.recipient_phone}"
+    )
 
 
 def process_notification(db: Session, notification_id: str):
@@ -20,12 +51,33 @@ def process_notification(db: Session, notification_id: str):
 
     print(f"Processing {notification.channel.value} notification {notification.id}")
 
-    notification.status = NotificationStatus.SENT
-    notification.sent_at = datetime.now(timezone.utc)
+    try:
+        if notification.channel == NotificationChannel.PUSH:
+            send_push(notification=notification, db=db)
 
-    db.commit()
+        elif notification.channel == NotificationChannel.SMS:
+            send_sms(notification)
 
-    print(f"Notification {notification.id} sent successfully.")
+        elif notification.channel == NotificationChannel.WHATSAPP:
+            send_whatsapp(notification)
+
+        notification.status = NotificationStatus.SENT
+        notification.sent_at = datetime.now(timezone.utc)
+        notification.error = "No error occured"
+        db.commit()
+
+        print(f"Notification {notification.id} sent successfully.")
+
+    except Exception as exc:
+
+        db.rollback()
+
+        notification.status = NotificationStatus.FAILED
+        notification.error = str(exc)
+
+        db.commit()
+
+        print(f"Notification {notification.id} failed: {exc}")
 
 
 def start_worker():

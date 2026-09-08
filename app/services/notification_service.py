@@ -2,6 +2,7 @@ import json
 
 from sqlalchemy.orm import Session
 
+from app.devices.models import UserDevices
 from app.notifications.models import (
     Notifications,
     NotificationChannel,
@@ -86,3 +87,14 @@ def notify_sos_contacts(
                     message=message,
                     recipient_email=user.email,
                 )
+
+
+def get_push_tokens(db: Session, email: str) -> list[str]:
+    user = db.query(Users).filter(Users.email == email).first()
+
+    if user is None:
+        return []
+
+    devices = db.query(UserDevices).filter(UserDevices.owner_id == user.id).all()
+
+    return [device.device_token for device in devices]

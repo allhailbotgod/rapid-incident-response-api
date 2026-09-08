@@ -1,7 +1,7 @@
 import uuid
 from enum import Enum
 
-from sqlalchemy import Column, String, text, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, String, text, ForeignKey, TIMESTAMP, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Enum as SQLEnum
 
@@ -73,6 +73,12 @@ class Notifications(Base):
     message = Column(
         String,
         nullable=False,
+    )
+    
+    retry_count = Column(
+        Integer,
+        nullable=False,
+        server_default=text("0"),
     )
 
     created_at = Column(

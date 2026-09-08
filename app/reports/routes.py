@@ -108,7 +108,6 @@ def report_incident(
 
     except Exception as e:
         db.rollback()
-        print("error:", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while creating the incident.",
