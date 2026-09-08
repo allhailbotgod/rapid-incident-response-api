@@ -39,3 +39,12 @@ class AgencyUpdate(BaseModel):
 class AgencyRegistration(BaseModel):
     agency: AgencyIn
     email: EmailStr
+
+
+class LocationDataResponse(BaseModel):
+    id: UUID
+    latitude: float
+    longitude: float
+    org_type: OrgTypeEnum
+
+    model_config = ConfigDict(from_attributes=True)

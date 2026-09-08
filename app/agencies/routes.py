@@ -4,17 +4,22 @@ from uuid import UUID
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.agencies.models import Agency
-from app.agencies.schemas import AgencyOut, AgencyRegistration, AgencyUpdate
+from app.agencies.schemas import (
+    AgencyOut,
+    AgencyRegistration,
+    AgencyUpdate,
+    LocationDataResponse,
+)
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.roles.models import Roles
 from app.users.models import Users
 from app.utils.helpers import require_admin
 
-router = APIRouter()
+router = APIRouter(prefix="/agencies")
 
 
-@router.get("/agencies", status_code=status.HTTP_200_OK, response_model=list[AgencyOut])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=list[AgencyOut])
 def fetch_organizations(
     db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
@@ -23,9 +28,20 @@ def fetch_organizations(
     return fetched
 
 
-@router.post(
-    "/agencies/register", status_code=status.HTTP_200_OK, response_model=AgencyOut
+@router.get(
+    "/locations",
+    status_code=status.HTTP_200_OK,
+    response_model=list[LocationDataResponse],
 )
+def fetch_map_data(
+    db: Session = Depends(get_db), current_user: Users = Depends(get_current_user)
+):
+    map_data = db.query(Agency).all()
+
+    return map_data
+
+
+@router.post("/register", status_code=status.HTTP_200_OK, response_model=AgencyOut)
 def register_organization(
     data: AgencyRegistration,
     db: Session = Depends(get_db),
@@ -68,9 +84,7 @@ def register_organization(
     return new_agency
 
 
-@router.patch(
-    "/agencies/{id}", status_code=status.HTTP_200_OK, response_model=AgencyOut
-)
+@router.patch("/{id}", status_code=status.HTTP_200_OK, response_model=AgencyOut)
 def update_organization_details(
     id: UUID,
     updates: AgencyUpdate,
@@ -114,7 +128,7 @@ def update_organization_details(
     return to_update
 
 
-@router.delete("/agencies/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_organization(
     id: UUID,
     db: Session = Depends(get_db),

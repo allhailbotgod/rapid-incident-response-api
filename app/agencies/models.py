@@ -1,7 +1,16 @@
 import uuid
 from enum import Enum
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import TIMESTAMP, Column, Double, String, Boolean, text, Enum as SQLEnum
+from sqlalchemy import (
+    TIMESTAMP,
+    Column,
+    Double,
+    String,
+    Boolean,
+    UniqueConstraint,
+    text,
+    Enum as SQLEnum,
+)
 from app.database import Base
 
 
@@ -34,4 +43,12 @@ class Agency(Base):
     )
     updated_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
+
+    __table_args__ = (
+        UniqueConstraint("name", "email", name="uq_agencies_name_email"),
+        UniqueConstraint(
+            "name", "latitude", "longitude", name="uq_agencies_name_lat_long"
+        ),
+        UniqueConstraint("name", "phone", name="uq_agencies_name_phone"),
     )

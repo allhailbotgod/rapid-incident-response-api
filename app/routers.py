@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi.routing import APIRoute
 from app.agencies.routes import router as agencies_router
 from app.auth.routes import router as auth_router
 from app.devices.routes import router as device_token_router
