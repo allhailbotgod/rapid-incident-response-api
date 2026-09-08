@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi.routing import APIRoute
 from app.agencies.routes import router as agencies_router
 from app.auth.routes import router as auth_router
+from app.devices.routes import router as device_token_router
 from app.medic.routes import router as medic_router
 from app.reports.routes import router as reports_router
 from app.roles.routes import router as roles_router
@@ -13,6 +14,7 @@ api_router = APIRouter(prefix="/v1")
 
 api_router.include_router(agencies_router, tags=["Agencies"])
 api_router.include_router(auth_router, tags=["Authentication"])
+api_router.include_router(device_token_router, tags=["Devices"])
 api_router.include_router(medic_router, tags=["Medicals"])
 api_router.include_router(reports_router, tags=["Reports / Incidents"])
 api_router.include_router(roles_router, tags=["Roles"])

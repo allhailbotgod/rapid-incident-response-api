@@ -10,6 +10,7 @@ from app.notifications.models import (
 )
 from app.sos.models import SOS
 from app.users.models import Users
+from app.roles.models import Roles
 from app.utils.redis import redis_client, NOTIFICATION_QUEUE
 
 
@@ -87,6 +88,25 @@ def notify_sos_contacts(
                     message=message,
                     recipient_email=user.email,
                 )
+
+
+def notify_dispatchers(db: Session, incident_id, title, message):
+    dispatchers = (
+        db.query(Users)
+        .join(Roles, Users.role_id == Roles.id)
+        .filter(Roles.name == "dispatcher")
+        .all()
+    )
+
+    for dispatcher in dispatchers:
+        create_notification(
+            db=db,
+            incident_id=incident_id,
+            channel=NotificationChannel.PUSH,
+            title=title,
+            message=message,
+            recipient_email=dispatcher.email,
+        )
 
 
 def get_push_tokens(db: Session, email: str) -> list[str]:

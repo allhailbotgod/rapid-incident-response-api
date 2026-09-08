@@ -8,7 +8,7 @@ from app.auth.oauth2 import get_current_user
 from app.database import get_db
 from app.reports.models import Media, ReportType, Reports
 from app.reports.schemas import IncidentCreate, IncidentResponse
-from app.services.notification_service import notify_sos_contacts
+from app.services.notification_service import notify_dispatchers, notify_sos_contacts
 from app.sos.models import SOS
 from app.utils.storage import create_upload_url, verify_object_exists
 from app.users.models import Users
@@ -54,6 +54,13 @@ def report_incident(
                 title="Emergency Alert!",
                 message=f"{current_user.first_name} {current_user.last_name} has reported an emergency ({data.report_summary.value}) and is requesting immediate assistance. Last known Location: {data.latitude} {data.longitude}.",
             )
+
+        notify_dispatchers(
+            db=db,
+            incident_id=new_incident.id,
+            title="Emergency Alert!",
+            message="An incident has been reported.",
+        )
 
         upload_urls = []
 
@@ -106,7 +113,7 @@ def report_incident(
             detail="Could not create incident.",
         )
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

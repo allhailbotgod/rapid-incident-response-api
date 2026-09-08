@@ -14,6 +14,8 @@ from app.services.notification_service import get_push_tokens
 from app.utils.redis import redis_client, NOTIFICATION_QUEUE
 import app.models
 
+MAX_RETRIES = 5
+
 
 def send_push(notification: Notifications, db: Session):
     if not notification.recipient_email:
@@ -72,12 +74,33 @@ def process_notification(db: Session, notification_id: str):
 
         db.rollback()
 
-        notification.status = NotificationStatus.FAILED
+        notification.retry_count += 1
         notification.error = str(exc)
 
-        db.commit()
+        if notification.retry_count < MAX_RETRIES:
+            notification.status = NotificationStatus.PENDING
 
-        print(f"Notification {notification.id} failed: {exc}")
+            db.commit()
+
+            redis_client.rpush(
+                NOTIFICATION_QUEUE,
+                json.dumps({"notification_queue": str(notification.id)}),
+            )
+
+            print(
+                f"Notification {notification.id} failed. "
+                f"Retry {notification.retry_count}/{MAX_RETRIES} queued."
+            )
+
+        else:
+            notification.status = NotificationStatus.FAILED
+
+            db.commit()
+
+            print(
+                f"Notification {notification.id} permanently failed "
+                f"after {MAX_RETRIES} attempts: {exc}"
+            )
 
 
 def start_worker():
