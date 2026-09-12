@@ -126,7 +126,7 @@ class Media(Base):
     uploaded_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
-    incident = relationship(
+    incidents = relationship(
         "Incidents",
         back_populates="media",
     )
