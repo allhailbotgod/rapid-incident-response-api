@@ -17,9 +17,9 @@ class StatusHistory(Base):
     incident_id = Column(
         UUID(as_uuid=True),
         ForeignKey(
-            "reports.id",
+            "incidents.id",
             ondelete="cascade",
-            name="status_history_reports.id_status_history.incident_id_fk",
+            name="status_history_incidents.id_status_history.incident_id_fk",
         ),
         nullable=False,
     )
