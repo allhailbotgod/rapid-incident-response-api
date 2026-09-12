@@ -26,6 +26,7 @@ class UserDevices(Base):
             name="user_devices_users.id_users_devices.owner_id_fk",
         ),
         nullable=False,
+        unique=True,
     )
 
     device_token = Column(

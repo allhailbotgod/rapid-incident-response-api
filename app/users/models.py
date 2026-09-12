@@ -41,7 +41,7 @@ class Users(Base):
         ForeignKey(
             "agencies.id", ondelete="set null", name="users_agencies.id_users.org_id_fk"
         ),
-        nullable=False,
+        nullable=True,
         unique=True,
     )
     role_id = Column(
