@@ -38,12 +38,18 @@ class Users(Base):
     password = Column(String, nullable=False)
     org_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="cascade"),
+        ForeignKey(
+            "agencies.id", ondelete="set null", name="users_agencies.id_users.org_id_fk"
+        ),
         nullable=False,
         unique=True,
     )
     role_id = Column(
-        UUID(as_uuid=True), ForeignKey("roles.id", ondelete="restrict"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey(
+            "roles.id", ondelete="restrict", name="users_roles.id_users.role_id_fk"
+        ),
+        nullable=False,
     )
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")

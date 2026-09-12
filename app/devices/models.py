@@ -20,7 +20,11 @@ class UserDevices(Base):
 
     owner_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="cascade"),
+        ForeignKey(
+            "users.id",
+            ondelete="cascade",
+            name="user_devices_users.id_users_devices.owner_id_fk",
+        ),
         nullable=False,
     )
 

@@ -15,7 +15,13 @@ class StatusHistory(Base):
         server_default=text("gen_random_uuid()"),
     )
     incident_id = Column(
-        UUID(as_uuid=True), ForeignKey("reports.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey(
+            "reports.id",
+            ondelete="cascade",
+            name="status_history_reports.id_status_history.incident_id_fk",
+        ),
+        nullable=False,
     )
     old_status = Column(String, nullable=False)
     new_status = Column(String, nullable=False)

@@ -108,7 +108,7 @@ def user_token_refresh_request(
 
     set_revoked = (
         db.query(RevokedTokens)
-        .join(Users)
+        .join(Users, RevokedTokens.user_id == Users.id)
         .filter(RevokedTokens.jti == payload["jti"], Users.id == payload["sub"])
         .first()
     )

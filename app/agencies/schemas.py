@@ -34,17 +34,3 @@ class AgencyUpdate(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     is_active: bool | None = None
-
-
-class AgencyRegistration(BaseModel):
-    agency: AgencyIn
-    email: EmailStr
-
-
-class LocationDataResponse(BaseModel):
-    id: UUID
-    latitude: float
-    longitude: float
-    org_type: OrgTypeEnum
-
-    model_config = ConfigDict(from_attributes=True)

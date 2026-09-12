@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
-from app.reports.models import Media, ReportType, Reports
+from app.reports.models import Media, IncidentType, Incidents
 from app.reports.schemas import IncidentCreate, IncidentResponse
 from app.services.notification_service import notify_dispatchers, notify_sos_contacts
 from app.sos.models import SOS
@@ -27,7 +27,7 @@ ALLOWED_MEDIA_TYPES = settings.ALLOWED_MEDIA_TYPES
 def fetch_incidents(
     db: Session = Depends(get_db), current_user=Depends(require_dispatch)
 ):
-    fetched = db.query(Reports).all()
+    fetched = db.query(Incidents).all()
 
     return fetched
 
@@ -38,7 +38,7 @@ def report_incident(
     db: Session = Depends(get_db),
     current_user: Users = Depends(get_current_user),
 ):
-    new_incident = Reports(
+    new_incident = Incidents(
         **data.model_dump(exclude={"media"}), reporter_id=current_user.id
     )
 
@@ -46,7 +46,7 @@ def report_incident(
         db.add(new_incident)
         db.flush()
 
-        if data.report_type == ReportType.VICTIM:
+        if data.report_type == IncidentType.VICTIM:
             notify_sos_contacts(
                 db=db,
                 incident_id=new_incident.id,
@@ -132,11 +132,11 @@ def confirm_media_upload(
 ):
     to_update = (
         db.query(Media)
-        .join(Reports)
+        .join(Incidents)
         .filter(
             Media.id == media_id,
             Media.incident_id == incident_id,
-            Reports.reporter_id == current_user.id,
+            Incidents.reporter_id == current_user.id,
         )
         .first()
     )

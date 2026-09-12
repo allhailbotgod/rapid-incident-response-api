@@ -24,7 +24,13 @@ class RevokedTokens(Base):
     )
 
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey(
+            "users.id",
+            ondelete="cascade",
+            name="revoked_tokens_users.id_revoked_tokens.user_id_fk",
+        ),
+        nullable=False,
     )
 
     jti = Column(UUID(as_uuid=True), nullable=False, unique=True)

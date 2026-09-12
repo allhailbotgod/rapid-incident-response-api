@@ -6,12 +6,12 @@ from sqlalchemy.orm import Session
 from app.agencies.models import Agency
 from app.agencies.schemas import (
     AgencyOut,
-    AgencyRegistration,
+    AgencyIn,
     AgencyUpdate,
-    LocationDataResponse,
 )
 from app.auth.oauth2 import get_current_user
 from app.database import get_db
+from app.reports.models import Incidents
 from app.roles.models import Roles
 from app.users.models import Users
 from app.utils.helpers import require_admin
@@ -29,21 +29,21 @@ def fetch_organizations(
 
 
 @router.get(
-    "/locations",
-    status_code=status.HTTP_200_OK,
-    response_model=list[LocationDataResponse],
+    "/incidents", status_code=status.HTTP_200_OK, response_model=list[AgencyOut]
 )
-def fetch_map_data(
-    db: Session = Depends(get_db), current_user: Users = Depends(get_current_user)
+def fetch_agency_specific_incidents(
+    db: Session = Depends(get_db), current_user: Users = Depends(require_admin)
 ):
-    map_data = db.query(Agency).all()
+    incidents = (
+        db.query(Incidents).filter(Incidents.agency_id == current_user.org_id).all()
+    )
 
-    return map_data
+    return incidents
 
 
 @router.post("/register", status_code=status.HTTP_200_OK, response_model=AgencyOut)
 def register_organization(
-    data: AgencyRegistration,
+    data: AgencyIn,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
@@ -51,27 +51,7 @@ def register_organization(
 
     db.add(new_agency)
 
-    new_admin = db.query(Users).filter(Users.email == data.email).first()
-
-    if not new_admin:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Email was not found."
-        )
-
-    admin_role = db.query(Roles).filter(Roles.name == "admin").first()
-
-    if not admin_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Admin role was not found."
-        )
-
-    new_admin.role_id = admin_role.id
-
     try:
-        db.flush()
-
-        new_admin.org_id = new_agency.id
-
         db.commit()
         db.refresh(new_agency)
 

@@ -35,7 +35,9 @@ class SOS(Base):
         server_default=text("gen_random_uuid()"),
     )
     owner_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="cascade", name="sos_users.id_sos.owner_id_fk"),
+        nullable=False,
     )
     phone = Column(String, nullable=False)
     email = Column(String, nullable=True)

@@ -15,18 +15,18 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class ReportType(str, Enum):
+class IncidentType(str, Enum):
     VICTIM = "victim"
     WITNESS = "witness"
 
 
-class ReportSummary(str, Enum):
+class IncidentSummary(str, Enum):
     FIRE = "fire"
     ACCIDENT = "accident"
     CRIME = "crime"
 
 
-class ReportPriority(str, Enum):
+class IncidentPriority(str, Enum):
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -34,15 +34,15 @@ class ReportPriority(str, Enum):
     EVALUATING = "evaluating"
 
 
-class ReportStatus(str, Enum):
+class IncidentStatus(str, Enum):
     PENDING = "pending"
     ASSIGNED = "assigned"
     RESPONDING = "responding"
     CLOSED = "closed"
 
 
-class Reports(Base):
-    __tablename__ = "reports"
+class Incidents(Base):
+    __tablename__ = "incidents"
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -52,22 +52,39 @@ class Reports(Base):
         server_default=text("gen_random_uuid()"),
     )
     reporter_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey(
+            "users.id",
+            ondelete="cascade",
+            name="incidents_users.id_incidents.reporter_id_fk",
+        ),
+        nullable=False,
+    )
+    agency_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "agencies.id",
+            ondelete="set null",
+            name="incidents_agencies.id_incidente.agency_id_fk",
+        ),
+        nullable=True,
     )
     latitude = Column(Double, nullable=False)
     longitude = Column(Double, nullable=False)
-    report_type = Column(SQLEnum(ReportType, name="report_type_enum"), nullable=False)
-    report_summary = Column(
-        SQLEnum(ReportSummary, name="report_summary_enum", nullable=False)
+    incident_type = Column(
+        SQLEnum(IncidentType, name="incident_type_enum"), nullable=False
+    )
+    incident_summary = Column(
+        SQLEnum(IncidentSummary, name="incident_summary_enum", nullable=False)
     )
     priority = Column(
-        SQLEnum(ReportPriority, name="report_priority_enum"),
-        default=ReportPriority.EVALUATING,
+        SQLEnum(IncidentPriority, name="incident_priority_enum"),
+        default=IncidentPriority.EVALUATING,
     )
     description = Column(String, nullable=True)
     status = Column(
-        SQLEnum(ReportStatus, name="report_status_enum"),
-        default=ReportStatus.PENDING,
+        SQLEnum(IncidentStatus, name="incident_status_enum"),
+        default=IncidentStatus.PENDING,
     )
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
@@ -75,7 +92,7 @@ class Reports(Base):
 
     media = relationship(
         "Media",
-        back_populates="report",
+        back_populates="incidents",
         cascade="all, delete-orphan",
     )
 
@@ -96,14 +113,20 @@ class Media(Base):
         default="pending",
     )
     incident_id = Column(
-        UUID(as_uuid=True), ForeignKey("reports.id", ondelete="cascade"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey(
+            "incidents.id",
+            ondelete="cascade",
+            name="media_incidents.id_media.incident_id_fk",
+        ),
+        nullable=False,
     )
     object_key = Column(String, nullable=False)
     content_type = Column(String, nullable=False)
     uploaded_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
-    report = relationship(
-        "Reports",
+    incident = relationship(
+        "Incidents",
         back_populates="media",
     )

@@ -34,7 +34,11 @@ class Notifications(Base):
 
     incident_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("reports.id", ondelete="cascade"),
+        ForeignKey(
+            "incidents.id",
+            ondelete="cascade",
+            name="notifications_incidents.id_notifications.incident_id_fk",
+        ),
         nullable=False,
     )
 
@@ -74,7 +78,7 @@ class Notifications(Base):
         String,
         nullable=False,
     )
-    
+
     retry_count = Column(
         Integer,
         nullable=False,

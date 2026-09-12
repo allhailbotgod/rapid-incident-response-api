@@ -3,7 +3,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.reports.models import ReportPriority, ReportStatus, ReportType, ReportSummary
+from app.reports.models import (
+    IncidentPriority,
+    IncidentStatus,
+    IncidentType,
+    IncidentSummary,
+)
 
 
 class MediaUpload(BaseModel):
@@ -25,21 +30,21 @@ class MediaOut(BaseModel):
 class IncidentCreate(BaseModel):
     latitude: float
     longitude: float
-    report_type: ReportType
-    report_summary: ReportSummary
+    Incident_type: IncidentType
+    Incident_summary: IncidentSummary
     description: str | None = None
     media: list[MediaUpload]
 
 
 class IncidentResponse(BaseModel):
     id: UUID = Field(alias="incident_id")
-    reporter_id: UUID
+    Incidenter_id: UUID
     latitude: float
     longitude: float
-    report_type: ReportType
-    report_summary: ReportSummary
-    priority: ReportPriority
-    status: ReportStatus
+    Incident_type: IncidentType
+    Incident_summary: IncidentSummary
+    priority: IncidentPriority
+    status: IncidentStatus
     description: str
     media: list[MediaOut]
     created_at: datetime
